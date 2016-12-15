@@ -4,3 +4,5 @@
 *.log
 *.out
 *.pdf
+paper-blx.bib
+paper.run.xml
