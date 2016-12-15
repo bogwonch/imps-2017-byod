@@ -1,0 +1,133 @@
+\documentclass[conference,twocolumn]{IEEEtran}
+\usepackage[backend=bibtex,firstinits=true]{biblatex}
+\addbibresource{paper}
+\makeatletter\def\blx@maxline{77}\makeatother
+
+\usepackage{graphicx}
+\newcommand{\rb}[1]{\rotatebox{90}{#1}}
+
+\usepackage{hyperref}
+\usepackage{mathtools}
+\usepackage{booktabs}
+
+\title{Common Concerns in BYOD Policies}
+\author{%
+  \IEEEauthorblockN{Joseph Hallett}
+  \IEEEauthorblockA{University of Edinburgh}
+  \and
+  \IEEEauthorblockN{David Aspinall}
+  \IEEEauthorblockA{University of Edinburgh}
+}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+  Companies publish BYOD policies for employees to use their device at work.
+  These policies are written using natural language, and vary in length and style.
+  Using BYOD policies from five different sources we explore common concerns.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:introduction}
+
+Employees increasingly bring their personal mobile devices to work.
+To control the access these devices have, 70\% of companies publish \emph{bring your own device} (BYOD) policies~\cite{schulze_byod_2016}.
+These BYOD policies are written documents for employees to read and follow.
+
+Companies have a variety of means to implement their policies.
+Some companies may trust employees to follow the rules on their own.
+Alternatively \emph{Mobile Device Management} (MDM) software can implement part of the policies: packages such as IBM's MaaS360 and Blackberry's offering~\cite{_ibm_????,_secure_????} can configure devices to restrict functionality and manage apps.
+Research has looked at developing other tools such as UC-Droid~\cite{martinelli_enhancing_2016} or BYODroid~\cite{armando_enabling_2014} which was used to implement parts of a NATO BYOD policy~\cite{armando_developing_2016}.
+
+Commercial tools are limited in what polices they can enforce.
+The tools are limited to simple on-off configuration settings, and banning explicitly black-listed apps.
+More sophisticated systems can use app-rewriting to recompile apps to tunnel traffic through a VPN, or geo-fencing to only apply policies in predefined areas.
+These tools are not infallible.
+One survey found that 50\% of companies with MDM software still had non-compliant devices in their networks~\cite{mobileiron_security_labs_q4_2015}.
+Whilst app wrapping can protect some apps, in general it is ineffective~\cite{hao_effectiveness_2013}.
+
+MDM software and research has, so far, focussed on restricting apps and device functionality.
+But what are the concerns and restriction described in the policies themselves?
+By analyzing 5 BYOD policies, we present the common concerns and structures found in the policies themselves.
+This suggests where future MDM tools should focus their efforts.
+
+\section{BYOD Policies}
+\label{sec:byod_policies}
+
+We analyzed 5 policies from different sources to find common concerns.
+The SANS policy~\cite{nicholas_r._c._guerin_security_2008} is a hypothetical BYOD policy that companies can use as a starting point to base their policy on.
+It is prescriptive and long, focussed on technical restrictions.
+The HiMSS policy~\cite{healthcare_information_and_management_systems_society_mobile_2012} also is a hypothetical policy, for US hospital trusts looking to implement a BYOD policy.
+It is short, but interesting as it is written in a different style to other BYOD policies.
+The NHS policy~\cite{kennington_mobiles_2014} is a BYOD policy used in a British hospital trust.
+It is long, and describes a complex policy in a large organization with a complex hierarchy.
+The final two policies are simpler, the fourth is taken from a company selling emergency sirens for cars~\cite{code3pse.org_sample_????}, the fifth is by the University of Edinburgh.  
+Both are short, relatively uncomplicated, but typical examples of policies found \emph{in the wild}.
+
+Not all the policies are written in the same style.
+Most are written from the perspective of a company or IT department telling an employee what to do.
+The HiMSS policy, however, is written as a contract where the user tells the company how they will behave.
+Most separate policy rules into small individual rules each which must be followed.
+The Edinburgh policy groups them together into two or three large rules, with different increasing sets of sub-rules for low and high risk employees to follow.
+
+To help compare the policies, they were first translated them into a formal language~\cite{hallett_specifying_2016}.
+We use a dialect of SecPAL~\cite{becker_secpal:_2010} that we use for describing app privacy preferences~\cite{hallett_apppal_2016}.
+SecPAL is designed to be readable, and requires an explicit speaker for all statements.
+This allows SecPAL-based languages to capture delegation relationships and the differences in style between the policies.
+Both the formalization of the policies\footnote{\url{https://github.com/apppal/apppal-byod-policy-translations}} and tooling for our variant of SecPAL\footnote{\url{https://github.com/apppal/libapppal}} are available online.
+
+\section{Rule Structures and Checks}
+
+Each of the policies are split into a series of rules, which describe the policy.
+The SecPAL assertions we used to translate the rules have a common structure:
+
+\begin{center}\ttfamily\footnotesize%
+  \newcommand{\sptoken}[1]{$\langle\text{#1}\rangle$}
+  \sptoken{speaker} says \sptoken{X} \sptoken{predicate} if \sptoken{Y} \sptoken{predicate}$\cdots$.
+\end{center}
+
+The predicates used to describe decisions made by the rules fall into 4 categories.
+\emph{Can} predicates describe what their subjects can do; for instance whether a device can connect to a server.
+\emph{Must} predicates describe obligations, such as reporting a lost device.
+\emph{Has} predicates ensure an action has been completed in the past, such as approving an app.
+Finally \emph{is} predicates describe a typing property about their subjects.
+
+The occurrence of each type of predicate in each policy is shown in \autoref{tab:prefix}.
+The use of each type is also split by whether the predicate is a \emph{decision} made by the policy, or a \emph{condition} for making that decision.
+Can and must-decisions feature in all policies excepting can-decisions in the Edinburgh policy, in part due to the structure of the policy as discussed in \autoref{sec:introduction}.
+This is expected, these are access control decisions and reactions to events; both topics that existing MDM tools have focussed on implementing.
+Has and is predicates are the majority of the conditions, but there are also decisions using them too.
+This suggests that implementing a policy is more complex than choosing what a predefined group of devices can or cannot do.
+The groups themselves are defined by policy rules that can dynamically change based on the policy.
+Existing MDM tools, such as MaaS360, do not allow for policies to be applied based on the basis of policies.
+To implement a BYOD policy fully an MDM tool must be more flexible than current tick-box approaches.
+
+\begin{table}\sffamily\footnotesize\centering
+\begin{tabular}{ c  c c c c c c c c c }
+\toprule
+          & \multicolumn{4}{c}{Decision}              & & \multicolumn{4}{c}{Condition}             \\
+Policy    & \rb{Can} & \rb{Must} & \rb{Has} & \rb{Is} & & \rb{Can} & \rb{Must} & \rb{Has} & \rb{Is} \\
+\midrule
+SANS      & 26       & 22        & 7        & 20      & & 2        & 2         & 8        &  81     \\
+HiMSS     & 6        & 12        & 9        & 2       & & 0        & 0         & 3        &  20     \\
+NHS       & 13       & 18        & 23       & 16      & & 2        & 0         & 20       &  83     \\
+Sirens    & 12       & 20        & 5        & 7       & & 1        & 4         & 1        &  50     \\
+Edinburgh & 0        & 2         & 9        & 0       & & 2        & 2         & 15       &  11     \\
+\bottomrule \\
+\end{tabular}
+\caption{Occurrences of predicate-types in each policy.}
+\label{tab:prefix}
+\end{table}
+
+\section{Common Concerns}
+
+\section{Principals and Delegation}
+
+\section{Conclusions}
+\label{sec:conclusions}
+
+Our formalisation of the policies is subjective.
+
+\printbibliography{}
+\end{document}
