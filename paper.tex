@@ -3,8 +3,13 @@
 \addbibresource{paper}
 \makeatletter\def\blx@maxline{77}\makeatother
 
+\newcommand{\comment}[1]{}
+
 \usepackage{graphicx}
 \newcommand{\rb}[1]{\rotatebox{90}{#1}}
+
+\usepackage{pifont}
+\newcommand{\cmark}{\ding{51}}
 
 \usepackage{hyperref}
 \usepackage{mathtools}
@@ -77,7 +82,7 @@ SecPAL is designed to be readable, and requires an explicit speaker for all stat
 This allows SecPAL-based languages to capture delegation relationships and the differences in style between the policies.
 Both the formalization of the policies\footnote{\url{https://github.com/apppal/apppal-byod-policy-translations}} and tooling for our variant of SecPAL\footnote{\url{https://github.com/apppal/libapppal}} are available online.
 
-\section{Rule Structures and Checks}
+\section{Rule Structures}
 
 Each of the policies are split into a series of rules, which describe the policy.
 The SecPAL assertions we used to translate the rules have a common structure:
@@ -120,9 +125,112 @@ Edinburgh & 0        & 2         & 9        & 0       & & 2        & 2         &
 \label{tab:prefix}
 \end{table}
 
-\section{Common Concerns}
+\section{Common Concerns and Checks}
+\label{sec:common_concerns}
+
+Analyzing each of the policies common concerns become apparent.
+We took care to ensure that our policies used the same predicates between themselves.
+A summary of predicates used in multiple policies by our translation is given in \autoref{tab:common}.
+
+Acknowledgements, and predicates linking devices to owners are used in all policies.
+Most policies described rules for when device features should be enabled and disabled.
+Configuring device features is a common feature to many MDM packages, but tracking what a user agrees to is not seen in leading MDM packages like MaaS360 or BES~\cite{rob_smith_magic_2016}.
+Only 2 out of 5 policies had rules limiting what networks, servers, or access points a device could access;
+  and only the two most complex policies had rules limiting what apps could be installed.
+This is surprising as a common feature of MDM tools is controlling how devices and apps access networks.
+User's have privacy preferences about apps~\cite{lin_modeling_2014}, but not all companies try and control what apps employees install.
+Providing curated app stores and blacklisting apps is a feature common to many MDM programs.
+Not all policies express opinions about apps however.
+
+
+\begin{table}\sffamily\footnotesize\centering
+\begin{tabular}{c c c c c c}
+\toprule                        \\ 
+Predicate                       & \rb{SANS} & \rb{HiMSS} & \rb{NHS} & \rb{Sirens} & \rb{Edinburgh} \\
+\midrule
+\comment 5  mustAcknowledged    &    \cmark & \cmark     &   \cmark & \cmark      &         \cmark \\
+\comment 5  hasAcknowledged     &    \cmark & \cmark     &   \cmark & \cmark      &         \cmark \\
+\comment 5  isOwnedBy           &    \cmark & \cmark     &   \cmark & \cmark      &         \cmark \\
+\comment 5  isDevice            &    \cmark & \cmark     &   \cmark & \cmark      &         \cmark \\
+\comment 4  mustDisable         &    \cmark &            &   \cmark & \cmark      &         \cmark \\
+\comment 4  isLost              &    \cmark & \cmark     &   \cmark & \cmark      &                \\
+\comment 4  isEmployee          &    \cmark &            &   \cmark & \cmark      &         \cmark \\
+\comment 4  isApp               &    \cmark & \cmark     &   \cmark & \cmark      &                \\
+\comment 4  isActivated         &    \cmark & \cmark     &   \cmark &             &         \cmark \\
+\comment 3  mustEnable          &    \cmark & \cmark     &          & \cmark      &                \\
+\comment 3  mustWipe            &           & \cmark     &   \cmark & \cmark      &                \\
+\comment 3  isEncrypted         &    \cmark &            &   \cmark &             &         \cmark \\
+\comment 3  hasMet              &    \cmark &            &   \cmark &             &         \cmark \\
+\comment 3  canMonitor          &    \cmark &            &   \cmark & \cmark      &                \\
+\comment 2  mustInform          &    \cmark &            &   \cmark &             &                \\
+\comment 2  isTelephoneNumber   &    \cmark &            &   \cmark &             &                \\
+\comment 2  isString            &           &            &   \cmark & \cmark      &                \\
+\comment 2  isSecurityLevel     &    \cmark & \cmark     &          &             &                \\
+\comment 2  isInstallable       &    \cmark &            &   \cmark &             &                \\
+\comment 2  isFeature           &    \cmark &            &          & \cmark      &                \\
+\comment 2  isData              &    \cmark &            &          & \cmark      &                \\
+\comment 2  isApprovedFor       &           & \cmark     &   \cmark &             &                \\
+\comment 2  isApproved          &    \cmark & \cmark     &          &             &                \\
+\comment 2  hasFeature          &           &            &   \cmark &             &         \cmark \\
+\comment 2  hasDevice           &           & \cmark     &   \cmark &             &                \\
+\comment 2  hasDepartment       &           & \cmark     &          &             &         \cmark \\
+\comment 2  canUse              &    \cmark &            &   \cmark &             &                \\
+\comment 2  canStore            &    \cmark & \cmark     &          &             &                \\
+\comment 2  canInstall          &    \cmark &            &   \cmark &             &                \\
+\comment 2  canConnectToServer  &    \cmark &            &   \cmark &             &                \\
+\comment 2  canConnectToNetwork &    \cmark &            &          & \cmark      &                \\
+\comment 2  canConnectToAP      &    \cmark & \cmark     &          &             &                \\
+\comment 2  canCall             &    \cmark &            &   \cmark &             &                \\
+\comment 2  canBackupTo         &           & \cmark     &          &             &         \cmark \\
+\bottomrule                     \\
+\end{tabular}
+\caption{Occurrences of predicates common to multiple policies.}
+\label{tab:common}
+\end{table}
+
+All of the policies we looked at required employees to be aware of and acknowledge the existence of other policies.
+The use of acknowledgements are noteworthy because the policies acknowledged may not be automatically enforcible.
+These other rules include ethical or legal guidelines and disclaimers about data-loss.
+Writing software to check a user is aware they may lose the data, and is behaving ethically may not be possible.
+
+An aspect of acknowledgements is they require a delegation of trust from the company to their employees.
+The employees have to be responsible for stating what they do or do not acknowledge.
+Delegation is key to other policy decisions in the policies.
+The IT department is delegated to audit apps.
+Users are responsible for reporting their device missing.
+
+We summarise the number (and percentage) of rules in the policies using acknowledgements and delegation relationships in \autoref{tab:summary}.
+For comparison we also give the at the number of rules which describe some form of restriction.
+Delegation relationships form a significant proportion of all the policies.
+Acknowledgements are used extensively in the HiMSS policy, but rarely in the SANS policy.
+Overall acknowledgements form as much a part of the policies as do device restrictions.
+MDM software has focussed on implementing device restrictions and configurations; but it would seem that other aspects are equally important.
+
+\begin{table}\centering\footnotesize\sffamily
+\newcommand{\numpc}[2]{\scriptsize #1 (#2\%)}
+  \setlength{\tabcolsep}{1pt}
+  \begin{tabular}{l c c c c c}
+    \toprule
+                                   & \rb{SANS}      & \rb{HiMSS}     & \rb{NHS}       & \rb{Sirens}    & \rb{Edinburgh} \\
+    \midrule                                                                                          
+    Rules using acknowledgement    & \numpc{2}{6}   & \numpc{10}{67} & \numpc{11}{20} & \numpc{6}{24}  & \numpc{1}{5}   \\
+    Rules using delegation         & \numpc{23}{70} & \numpc{5}{33}  & \numpc{33}{59} & \numpc{13}{52} & \numpc{2}{10}  \\
+    Rules describing a restriction & \numpc{18}{54} & \numpc{3}{20}  & \numpc{8}{14}  & \numpc{5}{20}  & \numpc{1}{5}   \\
+    \bottomrule                    \\
+  \end{tabular}
+  \caption{Summary of idioms in each of the policies.}
+  \label{tab:summary}
+\end{table}
 
 \section{Principals and Delegation}
+
+Each of the policies use delegation to describe rules.
+A delegation requires at least two parties: someone to hand off the decision, and someone to hand the decision to.
+SecPAL requires all statements be made by an explicit speaker.
+When translating the policies into SecPAL we created a principal to deliver the policy.
+In most cases we took the company (who had authored the document) as the speaker: however in the HiMSS policy rules are phrased as a user stating what they will do.
+In the HiMSS case the user was the primary speaker.
+
 
 \section{Conclusions}
 \label{sec:conclusions}
