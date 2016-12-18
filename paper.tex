@@ -12,11 +12,47 @@
 \usepackage{pifont}
 \newcommand{\cmark}{\ding{51}}
 
+\usepackage{listings}
+\lstdefinelanguage{AppPAL}{%
+  morekeywords={if,inf,says,where,true,false,with,is},
+  otherkeywords={can-act-as,can-say},
+  sensitive=true,
+  morestring=[b]',
+  literate={\ inf\ }{{$\infty$}}5
+}[keywords,strings]
+\newcommand{\listingsize}[0]{\scriptsize}
+\lstset{%
+  basicstyle=\normalfont\ttfamily\listingsize,
+  keywordstyle=\normalfont\ttfamily\slshape\listingsize,
+  stringstyle=\normalfont\sffamily\listingsize,
+  columns=flexible,
+  mathescape,
+  tabsize=2,
+  showstringspaces=true,
+    %numbers=left,
+  frame=single,
+  breaklines=true,
+  numberstyle=\tiny\ttfamily\color{Gray},
+  commentstyle=\ttfamily\color{Gray}
+}
+\newcommand{\code}[2][]{\lstinline[breaklines=true, #1]{#2}}
+
+\usepackage{mdframed}
+\newcommand{\todo}[1]{\marginpar{\begin{mdframed}[userdefinedwidth=1cm]\tiny\sffamily\raggedright #1\end{mdframed}}}
+
+\newenvironment{policyrule}[1]{%
+  \begin{mdframed}\footnotesize
+    \noindent\textbf{\sffamily #1}:~\itshape%
+  }{%
+  \end{mdframed}
+}
+
 \usepackage{hyperref}
 \usepackage{mathtools}
 \usepackage{booktabs}
 \usepackage{multirow}
 \usepackage{graphicx}
+\usepackage{microtype}
 
 \title{Common Concerns in BYOD Policies}
 \author{%
@@ -83,8 +119,8 @@ Three are policies used in a hospital, a company selling emergency sirens, and a
   \item The NHS policy~\cite{kennington_mobiles_2014} is a BYOD policy used in a British hospital trust.
     It is long, and describes a complex policy in a large organization with a complex hierarchy.
   \item The final two policies are simpler, the fourth is taken from a company selling emergency sirens for cars~\cite{code3pse.org_sample_????}, the fifth is by the University of Edinburgh.  
-\end{itemize}
 Both are short, relatively uncomplicated, but typical examples of policies found \emph{in the wild}.
+\end{itemize}
 
 Not all of the policies are written in the same style.
 Most are written from the perspective of a company or IT department telling an employee what to do.
@@ -92,13 +128,14 @@ The HiMSS policy, however, is written as a contract where the user tells the com
 Most policies separate individual policy rules into small individual rules each which must be followed.
 The Edinburgh policy groups them together into two or three large rules, with different increasing sets of sub-rules for low and high risk employees to follow.
 
+\section{Translation to SecPAL}
+\label{sec:translation_to_secpal}
+
 To help compare the policies, they were first translated them into a formal language~\cite{hallett_specifying_2016}.
 We use a dialect of SecPAL~\cite{becker_secpal:_2010} that we used for describing app privacy preferences~\cite{hallett_apppal_2016}.
 SecPAL is designed to be readable, and requires an explicit authority to \emph{speak} individual statements.
 This allows SecPAL-based languages to capture delegation relationships and the differences in style between the policies.
-Both the formalization of the policies\footnote{\url{https://github.com/apppal/apppal-byod-policy-translations}} and tooling for our variant of SecPAL\footnote{\url{https://github.com/apppal/libapppal}} are available online.
-
-\section{Rule Structures}
+Understanding the contents of policies and making comparisons is easier when using SecPAL as it helps to remove the ambiguities of natural language~\cite{hallett_specifying_2016}.
 
 Each of the policies are split into a series of rules.
 The SecPAL assertions we used to translate the rules have a common structure, similar to Datalog.
@@ -106,8 +143,47 @@ An authority (the speaker) will decide that a fact is true, if it can be convinc
 
 \begin{center}\ttfamily\footnotesize%
   \newcommand{\sptoken}[1]{$\langle\text{#1}\rangle$}
-  \sptoken{speaker} says $\overbrace{\text{\sptoken{X} \sptoken{\sf predicate}}}^{\text{\sf fact}}$ if $\overbrace{\text{\sptoken{Y} \sptoken{predicate}}}^{\text{condition}}\cdots$.
+  \sptoken{speaker} says $\overbrace{\text{\sptoken{X} \sptoken{predicate}}}^{\text{\sf fact}}$ if $\overbrace{\text{\sptoken{Y} \sptoken{predicate}}}^{\text{condition}}\cdots$.
 \end{center}
+
+A simple example is the following example from the Sirens-company policy.
+The policy states that devices may access various company resources.
+For each resource we create a SecPAL asserion that states that a device can access it.
+\begin{policyrule}{Sirens}
+  Employees may use their mobile device to access the following company-owned resources:
+  \newline $\bullet$ Email $\bullet$ Calendars $\bullet$ Contacts $\bullet$ Documents $\bullet$ Etc.
+  \begin{lstlisting}
+'department' says Device:D canAccess('email'). 
+'department' says Device:D canAccess('calendars'). 
+'department' says Device:D canAccess('contacts'). 
+'department' says Device:D canAccess('documents').
+  \end{lstlisting}
+\end{policyrule}
+
+A more complex example can be taken from the NHS policy.
+Employees are not allowed to call non-domestic, or premium rate numbers on company-owned phones, however an exception can be made if approved by the appropritate manager.
+To implement this we have the default rule that international calls are banned, a second rule stating that it is allowed if an exemption is made, finally a third rule delegating the exemption making process to the employees manager.
+\begin{policyrule}{NHS}
+  All mobile devices will be configured for national access only. Premium/international calls will be barred. 
+  International call barring and roaming arrangements can be lifted for specific periods, to be stipulated on request, on approval of the relevant manager/budget holder.
+  \begin{lstlisting}
+'nhs-trust' says Device canCall(TelephoneNumber:X) 
+  if Device isOwnedBy('nhs-trust'),
+     X isNationalNumber, X isStandardRateNumber.
+
+'nhs-trust' says Device canCall(TelephoneNumber:X)
+  if Device isOwnedBy(Staff),
+     Staff hasCallExemption.
+
+'nhs-trust' says Manager can-say
+  Staff hasCallExemption
+  if Manager isManagerOf(Staff).
+  \end{lstlisting}
+\end{policyrule}
+
+The formalization of the policies\footnote{\url{https://github.com/apppal/apppal-byod-policy-translations}} and tooling for our variant of SecPAL\footnote{\url{https://github.com/apppal/libapppal}} are available online.
+
+\section{Rule Structures}
 
 The predicates used to describe decisions made by the rules fall into 4 categories.
 \emph{Can} predicates describe what their subjects can do; for instance whether a device can connect to a server.
@@ -256,60 +332,93 @@ MDM software has focussed on implementing device restrictions and configurations
   \label{tab:summary}
 \end{table}
 
-\section{Principals and Delegation}
+\section{Authorities and Delegation}
 
 Each of the policies use delegation to describe rules.
 A delegation requires at least two parties: someone to hand off the decision, and someone to hand the decision to.
 They can be individuals, but often they are a role that several individuals may fulfill
-SecPAL requires each assertion to be made by an explicit authority.
-When translating the policies into SecPAL we created a principal to deliver the policy.
-In most cases we took the company (who had authored the document) as the speaker. 
+When translating the policies into SecPAL we created an authority to deliver the policy.
+In most cases we took the company (who had authored the document) as the authority. 
 In the HiMSS policy, however, rules are phrased as a user stating what they will do.
 
-In most policies we found three speakers were making the bulk of the decisions.
-A primary speaker expresses the bulk of the policy and delegation relationships.
-A technical user expresses sub-policies and makes specific decisions (is an app part of the standard company apps for instance).
+In most policies we found three authorities were making the bulk of the decisions.
+A primary authority expresses the bulk of the policy and delegation relationships.
+They act as the \emph{voice} of the policy.
+The primary authority delegates to the technical authority for some decisions.
+They may maintain inventories of devices, approve apps for devices, and describe what users may connect to.
+Their job varies between policies, but in general they are delegated to to provide more detailed policy rules.
+The user is responsible for stating who they are, what devices they have, and what the status of their device is (is it lost or no longer required, for instance).
+
+Some policies have more authorities, than others (\autoref{tab:principals}).
+The NHS policy has various managers that approve decisions for their staff.
+There are different groups that make decisions for the clinical and business halves of the business.
+If a clinical user wishes to use an app with a patient they must seek approval from two policy groups, as well as their line manager.
+Others make less use of different authorities. 
+In the Edinburgh policy, the records-management office states how a low or high risk must be configured.
+There is no delegation to others to further specify aspects of the policy.
+Delegation of responsibilities is an important part of BYOD policies.
+MDM software seems largely to ignore it, however. 
+These tools instead allow IT staff to set fixed policies and push them to devices.
+No further requesting of information is typically needed or required.
+
 
 \begin{table}\centering\footnotesize\sffamily
   \begin{tabular}{c l l}
     \toprule
-    \multirow{4}{*}{\rb{SANS}}       & Speakers          & 10                \\
-                                     & Primary Speaker   & company           \\
-                                     & Technical Speaker & it-department     \\
-                                     & User speaker      & user              \\
+    \multirow{4}{*}{\rb{SANS}}       & Authorities         & 10                \\
+                                     & Primary Authority   & company           \\
+                                     & Technical Authority & it-department     \\
+                                     & User Authority      & user              \\
     \midrule
-    \multirow{4}{*}{\rb{HiMSS}}      & Speakers          & 3                 \\
-                                     & Primary Speaker   & user              \\
-                                     & Technical Speaker & xyz-health-system \\
-                                     & User speaker      & department        \\
+    \multirow{4}{*}{\rb{HiMSS}}      & Authorities         & 3                 \\
+                                     & Primary Authority   & user              \\
+                                     & Technical Authority & xyz-health-system \\
+                                     & User Authority      & department        \\
     \midrule
-    \multirow{4}{*}{\rb{NHS}}        & Speakers          & 11                \\
-                                     & Primary Speaker   & nhs-trust         \\
-                                     & Technical Speaker & it-department     \\
-                                     & User speaker      & staff             \\
+    \multirow{4}{*}{\rb{NHS}}        & Authorities         & 11                \\
+                                     & Primary Authority   & nhs-trust         \\
+                                     & Technical Authority & it-department     \\
+                                     & User Authority      & staff             \\
     \midrule
-    \multirow{4}{*}{\rb{Sirens}}     & Speakers          & 4                 \\
-                                     & Primary Speaker   & department        \\
-                                     & Technical Speaker & it-department     \\
-                                     & User speaker      & employee          \\
+    \multirow{4}{*}{\rb{Sirens}}     & Authorities         & 4                 \\
+                                     & Primary Authority   & department        \\
+                                     & Technical Authority & it-department     \\
+                                     & User Authority      & employee          \\
     \midrule
-    \multirow{4}{*}{\rb{Edinburgh}}  & Speakers          & 2                 \\
-                                     & Primary Speaker   & records-management\\
-                                     & Technical Speaker &                   \\
-                                     & User speaker      & employee          \\
+    \multirow{4}{*}{\rb{Edinburgh}}  & Authorities         & 2                 \\
+                                     & Primary Authority   & records-management\\
+                                     & Technical Authority &                   \\
+                                     & User Authority      & employee          \\
     \bottomrule                     \\
   \end{tabular}
-  \caption{Summary of different principals in policies.}
+  \caption{Summary of different authorities in policies.}
   \label{tab:principals}
 \end{table}
 
 \section{Conclusions}
 \label{sec:conclusions}
 
+We have looked at 5 different BYOD policies and presented a summary of their contents, their styles of presentation and the relationships within them.
+To analyse the policies we translated them into SecPAL.
+The translation from natural to formal language is somewhat subjective.
+We have tried to mitigate this by attempting to preserve the style of the original and by careful use of predicates between different policies.
+Working with a company to implement the SecPAL policy inside their business would help to ensure the formalisation is correct.
+
+Comparing the policies we found a diverse range of concerns.
+Some of these concerns (the use of acknowledgements in particular) are not addressed by current BYOD tools. 
+The tools focus on device configuration, which are only part of the concerns of the BYOD policies.
+We also found the policies were presented in a variety of styles.
+Some, like SANS, are prescriptive and describe a company telling employees what to do.
+Others, like HiMSS, take the form of a user contract, where employees state that they acknowledge the companies rules and agree to follow them.
+The lack of commonality suggest there may be no perfect solution for implementing BYOD policies.
+Future tools must be flexible enough to express a range of policies, and model the trust relationships these policies contain.
+
+\comment{%
 \begin{itemize}
   \item Our formalisation of the policies is subjective.
   \item Remarks about lack of commonality.
 \end{itemize}
+}
 
 \printbibliography{}
 \end{document}
