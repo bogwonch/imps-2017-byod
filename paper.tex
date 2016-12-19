@@ -86,27 +86,27 @@ The policies say how employees should access data, and who should authorise deci
 
 Companies have a variety of means to implement their policies.
 Some companies may trust employees to follow the rules on their own.
-Alternatively \emph{Mobile Device Management} (MDM) software can implement part of the policies: packages such as IBM's MaaS360 and Blackberry's offering~\cite{_ibm_????,_secure_????} can configure devices to restrict functionality and manage apps.
+Alternatively \emph{Mobile Device Management} (MDM) software can implement part of the policies: packages such as IBM's MaaS360 and Blackberry's BES~\cite{_ibm_????,_secure_????} can configure devices to restrict functionality and manage apps.
 Research has looked at developing other tools such as UC-Droid~\cite{martinelli_enhancing_2016} or BYODroid~\cite{armando_enabling_2014} which was used to implement parts of a NATO BYOD policy~\cite{armando_developing_2016}.
 
 Commercial tools are limited in what polices they can enforce.
-The tools are limited to simple on-off configuration settings, and banning explicitly black-listed apps.
-More sophisticated systems can use app-rewriting to recompile apps to tunnel traffic through a VPN, or geo-fencing to only apply policies in predefined areas.
+Some tools can only enable simple on-off configuration settings, and ban explicitly black-listed apps.
+More sophisticated systems can use app-rewriting to recompile apps to tunnel traffic through a VPN, or geofencing to apply policies in predefined areas.
 These tools are not infallible.
 One survey found that 50\% of companies with MDM software still had non-compliant devices in their networks~\cite{mobileiron_security_labs_q4_2015}.
 Whilst app wrapping can protect some apps, in general it is ineffective~\cite{hao_effectiveness_2013}.
 
-MDM software and research has, so far, focussed on restricting apps and device functionality.
-But what are the concerns and restriction described in the policies themselves?
-By analyzing 5 BYOD policies, we present the common concerns and structures found in the policies themselves.
-The policies display varying styles for writing policies, and varying concerns.
-In comparison to MDM software, the policies do not focus exclusively on restrictions but rather require employees acknowledge company rules and describe trust relationships between different departments.
-This suggests there is little consensus on the best way to write such policies and that more research is needed.
+MDM software and research has, so far, focused on restricting apps and device functionality.
+But what are the concerns and restrictions described in the policies themselves?
+By analysing 5 BYOD policies, we present the common concerns and structures found in the policies themselves.
+The policies display various styles for writing policies, and differing concerns.
+In comparison to MDM software, the policies do not focus exclusively on restrictions but rather require employees acknowledge company rules and the policies describe trust relationships amongst different departments.
+This suggests little consensus on the best way to write such policies and that more research is needed.
 
 \section{BYOD Policies}
 \label{sec:byod_policies}
 
-We analyzed 5 policies from different sources to find common concerns.
+We analysed 5 policies from different sources to find common concerns.
 These five were chosen as they come from a variety of sources and industries.
 Two are advisory, published specialist institutions to help other companies implement their own policies.
 Three are policies used in a hospital, a company selling emergency sirens, and a university.
@@ -117,12 +117,12 @@ Three are policies used in a hospital, a company selling emergency sirens, and a
     It is short, but and written from the perspective of the employee agreeing to the policy.
     This is different to the other policies where instead the policy is written as rules for employees to follow.
   \item The NHS policy~\cite{kennington_mobiles_2014} is a BYOD policy used in a British hospital trust.
-    It is long, and describes a complex policy in a large organization with a complex hierarchy.
+    It is long, and describes a complex policy in a large organisation with a complex hierarchy.
   \item The final two policies are simpler, the fourth is taken from a company selling emergency sirens for cars~\cite{code3pse.org_sample_????}, the fifth is by the University of Edinburgh.  
 Both are short, relatively uncomplicated, but typical examples of policies found \emph{in the wild}.
 \end{itemize}
 
-Not all of the policies are written in the same style.
+Not all the policies are written in the same style.
 Most are written from the perspective of a company or IT department telling an employee what to do.
 The HiMSS policy, however, is written as a contract where the user tells the company how they will behave.
 Most policies separate individual policy rules into small individual rules each which must be followed.
@@ -134,11 +134,11 @@ The Edinburgh policy groups them together into two or three large rules, with di
 To help compare the policies, they were first translated them into a formal language~\cite{hallett_specifying_2016}.
 We use a dialect of SecPAL~\cite{becker_secpal:_2010} that we used for describing app privacy preferences~\cite{hallett_apppal_2016}.
 SecPAL is designed to be readable, and requires an explicit authority to \emph{speak} individual statements.
-This allows SecPAL-based languages to capture delegation relationships and the differences in style between the policies.
+This allows SecPAL-based languages to capture delegation relationships and the differences in style between policies.
 Understanding the contents of policies and making comparisons is easier when using SecPAL as it helps to remove the ambiguities of natural language~\cite{hallett_specifying_2016}.
 
 Each of the policies are split into a series of rules.
-The SecPAL assertions we used to translate the rules have a common structure, similar to Datalog.
+The SecPAL used to translate the rules has a structure similar to Datalog.
 An authority (the speaker) will decide that a fact is true, if it can be convinced of a series of conditional facts are also true. 
 
 \begin{center}\ttfamily\footnotesize%
@@ -148,7 +148,7 @@ An authority (the speaker) will decide that a fact is true, if it can be convinc
 
 A simple example is the following example from the Sirens-company policy.
 The policy states that devices may access various company resources.
-For each resource we create a SecPAL asserion that states that a device can access it.
+For each resource we create a SecPAL assertion that states that a device can access it.
 \begin{policyrule}{Sirens}
   Employees may use their mobile device to access the following company-owned resources:
   \newline $\bullet$ Email $\bullet$ Calendars $\bullet$ Contacts $\bullet$ Documents $\bullet$ Etc.
@@ -161,8 +161,8 @@ For each resource we create a SecPAL asserion that states that a device can acce
 \end{policyrule}
 
 A more complex example can be taken from the NHS policy.
-Employees are not allowed to call non-domestic, or premium rate numbers on company-owned phones, however an exception can be made if approved by the appropritate manager.
-To implement this we have the default rule that international calls are banned, a second rule stating that it is allowed if an exemption is made, finally a third rule delegating the exemption making process to the employees manager.
+Employees are not allowed to call non-domestic, or premium rate numbers on company-owned phones, however an exception can be made if approved by the appropriate manager.
+To implement this we have the default rule that international calls are banned, a second rule stating that it is allowed if an exemption is made, finally a third rule delegating the exemption making process to the employee's manager.
 \begin{policyrule}{NHS}
   All mobile devices will be configured for national access only. Premium/international calls will be barred. 
   International call barring and roaming arrangements can be lifted for specific periods, to be stipulated on request, on approval of the relevant manager/budget holder.
@@ -181,20 +181,20 @@ To implement this we have the default rule that international calls are banned, 
   \end{lstlisting}
 \end{policyrule}
 
-The formalization of the policies\footnote{\url{https://github.com/apppal/apppal-byod-policy-translations}} and tooling for our variant of SecPAL\footnote{\url{https://github.com/apppal/libapppal}} are available online.
+The formalisation of the policies\footnote{\url{https://github.com/apppal/apppal-byod-policy-translations}} and tooling for our variant of SecPAL\footnote{\url{https://github.com/apppal/libapppal}} are available online.
 
 \section{Rule Structures}
 
-The predicates used to describe decisions made by the rules fall into 4 categories.
+The predicates used in the formalisation of the rules fall into 4 categories.
 \emph{Can} predicates describe what their subjects can do; for instance whether a device can connect to a server.
 \emph{Must} predicates describe obligations, such as reporting a lost device.
 \emph{Has} predicates ensure an action has been completed in the past, such as approving an app.
-Finally \emph{is} predicates describe a typing property about their subjects.
+Finally, \emph{is} predicates describe a typing property about their subjects.
 
-The occurrence of each type of predicate in each policy is shown in \autoref{tab:prefix}.
-The use of each type is also split by whether the predicate is a \emph{decision} made by the policy, or a \emph{condition} for making that decision.
-\emph{Can} and \emph{must} decisions feature in all policies excepting \emph{can} decisions in the Edinburgh policy, in part due to the structure of the policy as discussed in \autoref{sec:introduction}.
-This is expected, these are access control decisions and reactions to events; both topics that existing MDM tools have focussed on implementing.
+The occurrence of each type of predicate is shown in \autoref{tab:prefix}.
+The use of each is also split by whether the predicate is a \emph{decision} made by the policy, or a \emph{condition} for making that decision.
+\emph{Can} and \emph{must} decisions feature in all policies excepting \emph{can} decisions in the Edinburgh policy, in part due to the structure of the policy as discussed in \autoref{sec:byod_policies}.
+This is expected, these are access control decisions and reactions to events; both topics that existing MDM tools have focused on implementing.
 \emph{Has} and \emph{is} predicates are the majority of the conditions, but there are also decisions using them too.
 
 \comment{
@@ -237,7 +237,7 @@ Edinburgh    & \zilch                       & \numpc{2 }{18} & \numpc{9 }{82} & 
 \section{Common Concerns and Checks}
 \label{sec:common_concerns}
 
-Analyzing each of the policies common concerns become apparent.
+Analysing each of the policies common concerns become apparent.
 %We took care to ensure that our policies used the same predicates between themselves.
 A summary of predicates, with the same meaning, used in multiple policies by our translation is given in \autoref{tab:common}.
 
@@ -248,7 +248,7 @@ Configuring device features is a common feature to many MDM packages, but tracki
 Only 2 out of 5 policies had rules limiting what networks, servers, or access points a device could access;
   and only the two most complex policies had rules limiting what apps could be installed.
 This is surprising as a common feature of MDM tools is controlling how devices and apps access networks.
-Users have privacy preferences about apps~\cite{lin_modeling_2014}, but not all companies try and control what apps employees install.
+Users have privacy preferences about apps~\cite{lin_modeling_2014}, but not all companies try to control what apps employees install.
 Providing curated app stores and blacklisting apps is a feature common to many MDM programs.
 Not all policies express rules about which apps to install, however.
 
@@ -297,7 +297,7 @@ Predicate                       & \rb{SANS} & \rb{HiMSS} & \rb{NHS} & \rb{Sirens
 \label{tab:common}
 \end{table}
 
-All of the policies we looked at required employees to be aware of and acknowledge the existence of other policies.
+All the policies we looked at required employees to be aware of and acknowledge the existence of other policies.
 The use of acknowledgements is noteworthy because policies acknowledged may not be ones that are enforcible automatically.
 These other rules include ethical or legal guidelines and disclaimers about data-loss.
 Writing software to check a user is aware they may lose the data, and is behaving ethically may not be possible.
@@ -309,7 +309,7 @@ The IT department is delegated to audit apps.
 Users are responsible for reporting their device missing.
 
 We summarise the number (and percentage) of rules in the policies using acknowledgements and delegation relationships in \autoref{tab:summary}.
-For comparison we also give the at the number of rules which describe some form of restriction.
+For comparison, we also give the at the number of rules which describe some form of restriction.
 Delegation relationships form a significant proportion of all the policies.
 Acknowledgements are used extensively in the HiMSS policy, but rarely in the SANS policy.
 Overall acknowledgements form as much a part of the policies as do device restrictions.
@@ -336,17 +336,17 @@ MDM software has focussed on implementing device restrictions and configurations
 
 Each of the policies use delegation to describe rules.
 A delegation requires at least two parties: someone to hand off the decision, and someone to hand the decision to.
-They can be individuals, but often they are a role that several individuals may fulfill
+They can be individuals, but often they are a role that several individuals may fulfil
 When translating the policies into SecPAL we created an authority to deliver the policy.
 In most cases we took the company (who had authored the document) as the authority. 
 In the HiMSS policy, however, rules are phrased as a user stating what they will do.
 
-In most policies we found three authorities were making the bulk of the decisions.
+Most policies used three authorities to make the bulk of the decisions.
 A primary authority expresses the bulk of the policy and delegation relationships.
 They act as the \emph{voice} of the policy.
 The primary authority delegates to the technical authority for some decisions.
 They may maintain inventories of devices, approve apps for devices, and describe what users may connect to.
-Their job varies between policies, but in general they are delegated to to provide more detailed policy rules.
+Their job varies between policies, but in general they are delegated to in order to provide more detailed policy rules.
 The user is responsible for stating who they are, what devices they have, and what the status of their device is (is it lost or no longer required, for instance).
 
 Some policies have more authorities, than others (\autoref{tab:principals}).
@@ -422,3 +422,5 @@ Future tools must be flexible enough to express a range of policies, and model t
 
 \printbibliography{}
 \end{document}
+
+
