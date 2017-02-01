@@ -118,7 +118,7 @@ Three are policies used in a hospital, a company selling emergency sirens, and a
     This is different to the other policies where instead the policy is written as rules for employees to follow.
   \item The NHS policy~\cite{kennington_mobiles_2014} is a BYOD policy used in a British hospital trust.
     It is long, and describes a complex policy in a large organisation with a complex hierarchy.
-  \item The final two policies are simpler, the fourth is taken from a company selling emergency sirens for cars~\cite{code3pse.org_sample_????}, the fifth is by the University of Edinburgh.  
+  \item The final two policies are simpler, the fourth is taken from a company selling emergency sirens for cars~\cite{code3pse.org_sample_????}, the fifth is by the University of Edinburgh.
 Both are short, relatively uncomplicated, but typical examples of policies found \emph{in the wild}.
 \end{itemize}
 
@@ -139,7 +139,7 @@ Understanding the contents of policies and making comparisons is easier when usi
 
 Each of the policies are split into a series of rules.
 The SecPAL used to translate the rules has a structure similar to Datalog.
-An authority (the speaker) will decide that a fact is true, if it can be convinced of a series of conditional facts are also true. 
+An authority (the speaker) will decide that a fact is true, if it can be convinced of a series of conditional facts are also true.
 
 \begin{center}\ttfamily\footnotesize%
   \newcommand{\sptoken}[1]{$\langle\text{#1}\rangle$}
@@ -153,21 +153,23 @@ For each resource we create a SecPAL assertion that states that a device can acc
   Employees may use their mobile device to access the following company-owned resources:
   \newline $\bullet$ Email $\bullet$ Calendars $\bullet$ Contacts $\bullet$ Documents $\bullet$ Etc.
   \begin{lstlisting}
-'department' says Device:D canAccess('email'). 
-'department' says Device:D canAccess('calendars'). 
-'department' says Device:D canAccess('contacts'). 
+'department' says Device:D canAccess('email').
+'department' says Device:D canAccess('calendars').
+'department' says Device:D canAccess('contacts').
 'department' says Device:D canAccess('documents').
   \end{lstlisting}
 \end{policyrule}
 
 A more complex example can be taken from the NHS policy.
-Employees are not allowed to call non-domestic, or premium rate numbers on company-owned phones, however an exception can be made if approved by the appropriate manager.
+Employees are not allowed to call non-domestic, or premium rate numbers on
+company-owned phones~\footnote{The NHS policy frequently doesn't distinguish between
+  company and privately owned phones and applies to both.}, however an exception can be made if approved by the appropriate manager.
 To implement this we have the default rule that international calls are banned, a second rule stating that it is allowed if an exemption is made, finally a third rule delegating the exemption making process to the employee's manager.
 \begin{policyrule}{NHS}
-  All mobile devices will be configured for national access only. Premium/international calls will be barred. 
+  All mobile devices will be configured for national access only. Premium/international calls will be barred.
   International call barring and roaming arrangements can be lifted for specific periods, to be stipulated on request, on approval of the relevant manager/budget holder.
   \begin{lstlisting}
-'nhs-trust' says Device canCall(TelephoneNumber:X) 
+'nhs-trust' says Device canCall(TelephoneNumber:X)
   if Device isOwnedBy('nhs-trust'),
      X isNationalNumber, X isStandardRateNumber.
 
@@ -254,7 +256,7 @@ Not all policies express rules about which apps to install, however.
 
 \begin{table}\sffamily\footnotesize\centering
 \begin{tabular}{c c c c c c}
-\toprule                        \\ 
+\toprule                        \\
 Predicate                       & \rb{SANS} & \rb{HiMSS} & \rb{NHS} & \rb{Sirens} & \rb{Edinburgh} \\
 \midrule
 \comment 5  mustAcknowledged    &    \cmark & \cmark     &   \cmark & \cmark      &         \cmark \\
@@ -320,9 +322,9 @@ MDM software has focussed on implementing device restrictions and configurations
   \begin{tabular}{l c c c c c}
     \toprule
                                    & \rb{SANS}      & \rb{HiMSS}     & \rb{NHS}       & \rb{Sirens}    & \rb{Edinburgh} \\
-    \midrule                                                                                          
+    \midrule
     Rules in policy                & 33             & 15             & 56             & 20             & 25             \\
-    \midrule                                                                                          
+    \midrule
     Rules using acknowledgement    & \numpc{2}{6}   & \numpc{10}{67} & \numpc{11}{20} & \numpc{6}{24}  & \numpc{1}{5}   \\
     Rules using delegation         & \numpc{23}{70} & \numpc{5}{33}  & \numpc{33}{59} & \numpc{13}{52} & \numpc{2}{10}  \\
     Rules describing a restriction & \numpc{18}{54} & \numpc{3}{20}  & \numpc{8}{14}  & \numpc{5}{20}  & \numpc{1}{5}   \\
@@ -338,7 +340,7 @@ Each of the policies use delegation to describe rules.
 A delegation requires at least two parties: someone to hand off the decision, and someone to hand the decision to.
 They can be individuals, but often they are a role that several individuals may fulfil
 When translating the policies into SecPAL we created an authority to deliver the policy.
-In most cases we took the company (who had authored the document) as the authority. 
+In most cases we took the company (who had authored the document) as the authority.
 In the HiMSS policy, however, rules are phrased as a user stating what they will do.
 
 Most policies used three authorities to make the bulk of the decisions.
@@ -353,11 +355,11 @@ Some policies have more authorities, than others (\autoref{tab:principals}).
 The NHS policy has various managers that approve decisions for their staff.
 There are different groups that make decisions for the clinical and business halves of the business.
 If a clinical user wishes to use an app with a patient they must seek approval from two policy groups, as well as their line manager.
-Others make less use of different authorities. 
+Others make less use of different authorities.
 In the Edinburgh policy, the records-management office states how a low or high risk must be configured.
 There is no delegation to others to further specify aspects of the policy.
 Delegation of responsibilities is an important part of BYOD policies.
-MDM software seems largely to ignore it, however. 
+MDM software seems largely to ignore it, however.
 These tools instead allow IT staff to set fixed policies and push them to devices.
 No further requesting of information is typically needed or required.
 
@@ -405,7 +407,7 @@ We have tried to mitigate this by attempting to preserve the style of the origin
 Working with a company to implement the SecPAL policy inside their business would help to ensure the formalisation is correct.
 
 Comparing the policies we found a diverse range of concerns.
-Some of these concerns (the use of acknowledgements in particular) are not addressed by current BYOD tools. 
+Some of these concerns (the use of acknowledgements in particular) are not addressed by current MDM tools.
 The tools focus on device configuration, which are only part of the concerns of the BYOD policies.
 We also found the policies were presented in a variety of styles.
 Some, like SANS, are prescriptive and describe a company telling employees what to do.
@@ -422,5 +424,3 @@ Future tools must be flexible enough to express a range of policies, and model t
 
 \printbibliography{}
 \end{document}
-
-
