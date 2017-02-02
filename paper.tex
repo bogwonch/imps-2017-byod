@@ -3,6 +3,10 @@
 \addbibresource{paper}
 \makeatletter\def\blx@maxline{77}\makeatother
 
+\usepackage[draft]{hyperref}
+%\usepackage{nohyperref}
+%\usepackage{url}
+
 \newcommand{\comment}[1]{}
 \newcommand{\numpc}[2]{\scriptsize #2\% {\tiny(#2)}}
 
@@ -38,16 +42,15 @@
 \newcommand{\code}[2][]{\lstinline[breaklines=true, #1]{#2}}
 
 \usepackage{mdframed}
-\newcommand{\todo}[1]{\marginpar{\begin{mdframed}[userdefinedwidth=1cm]\tiny\sffamily\raggedright #1\end{mdframed}}}
+\newcommand{\todo}[1]{\marginpar{\begin{mdframed}[userdefinedwidth=0.5cm, innerbottommargin=0]\tiny\sffamily\raggedright #1\end{mdframed}}}
 
 \newenvironment{policyrule}[1]{%
-  \begin{mdframed}\footnotesize
+  \begin{mdframed}[innerbottommargin=0]\footnotesize
     \noindent\textbf{\sffamily #1}:~\itshape%
   }{%
   \end{mdframed}
 }
 
-\usepackage{hyperref}
 \usepackage{mathtools}
 \usepackage{booktabs}
 \usepackage{multirow}
@@ -162,7 +165,7 @@ For each resource we create a SecPAL assertion that states that a device can acc
 
 A more complex example can be taken from the NHS policy.
 Employees are not allowed to call non-domestic, or premium rate numbers on
-company-owned phones~\footnote{The NHS policy frequently doesn't distinguish between
+company-owned phones~\footnote{The NHS policy doesn't distinguish between
   company and privately owned phones and applies to both.}, however an exception can be made if approved by the appropriate manager.
 To implement this we have the default rule that international calls are banned, a second rule stating that it is allowed if an exemption is made, finally a third rule delegating the exemption making process to the employee's manager.
 \begin{policyrule}{NHS}
